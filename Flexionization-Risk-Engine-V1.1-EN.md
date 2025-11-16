@@ -66,8 +66,8 @@ These approaches lack a **unifying structural model** capable of guaranteeing co
 
 Flexionization addresses this gap by introducing a purely structural notion of dynamic equilibrium. The theory provides:
 
-- a formal state space \( S \),  
-- a structural deviation measure \( \Delta = Q_p - Q_F \),  
+- a formal state space S,
+- a structural deviation measure Δ = Qₚ − Q_F, 
 - a strictly monotonic equilibrium indicator FXI,  
 - and a corrective operator \( E \) that governs transitions.
 

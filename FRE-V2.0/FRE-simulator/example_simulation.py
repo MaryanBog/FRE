@@ -801,6 +801,100 @@ class DomainShiftScenario:
 
         return state
 
+# -----------------------------------------------------
+# Level 9 - Slow Domain Drift Scenario (5D)
+# -----------------------------------------------------
+
+class DomainDriftScenario:
+    """
+    Level 9: Slow Domain Drift + Moving Reference (5D).
+
+    Идея:
+      - Целевой reference-вектор R⃗_ref(t) медленно дрейфует во времени
+        по гладкой 5D-траектории (низкочастотная орбита).
+      - Фактическое состояние X почти не получает резких шоков:
+        главный стресс в том, что "цель постоянно уезжает".
+      - В отдельные моменты (t = 20, 40, 60) добавляется небольшой
+        структурный "twist", который имитирует вращение осей / домена
+        под дрейфующим равновесием.
+      - FRE должен:
+          • отслеживать движущееся равновесие,
+          • сохранять FXI в допустимых зонах,
+          • не переходить в устойчивые орбиты или раскачку.
+    """
+
+    def __init__(self) -> None:
+        # Амплитуды дрейфа по каждой оси
+        self.drift_amplitude = {
+            "m": 0.03,
+            "L": 0.025,
+            "H": 0.02,
+            "R": 0.03,
+            "C": 0.025,
+        }
+        # Период полной "орбиты" reference-вектора
+        self.period = 60.0
+
+        # Моменты небольших структурных "твистов"
+        self.twist_times = (20, 40, 60)
+        self.twist_scale = 0.05  # интенсивность поворота
+
+    def _update_references(self, state: ExampleState5D, t: int) -> None:
+        """
+        Обновляем R⃗_ref(t) по плавной синусоидальной траектории в 5D.
+        """
+        phi = 2.0 * math.pi * (t / self.period)
+
+        # Разные фазовые сдвиги по компонентам => "вращающийся" reference-домен
+        m_ref = 1.0 + self.drift_amplitude["m"] * math.sin(phi)
+        L_ref = 1.0 + self.drift_amplitude["L"] * math.sin(phi + math.pi / 3.0)
+        H_ref = 1.0 + self.drift_amplitude["H"] * math.sin(phi + 2.0 * math.pi / 3.0)
+        R_ref = 1.0 + self.drift_amplitude["R"] * math.sin(phi + math.pi)
+        C_ref = 1.0 + self.drift_amplitude["C"] * math.sin(phi + 4.0 * math.pi / 3.0)
+
+        state.m_ref = m_ref
+        state.L_ref = L_ref
+        state.H_ref = H_ref
+        state.R_ref = R_ref
+        state.C_ref = C_ref
+
+        # Новый Δ⃗ и FXI относительно дрейфующего равновесия
+        state.compute_delta()
+        state.validate()
+
+    def _apply_twist(self, state: ExampleState5D) -> None:
+        """
+        Малый "поворот" структуры: слегка перемешиваем оси
+        на основе текущего отклонения Δ⃗.
+
+        Это приближённо имитирует медленно вращающуюся Q-матрицу:
+          - часть Δ_m уходит в L,
+          - часть Δ_L в H,
+          - часть Δ_H в R,
+          - часть Δ_R в C,
+          - часть Δ_C обратно в m.
+        """
+        d_m, d_L, d_H, d_R, d_C = state.delta_vec
+
+        state.m += self.twist_scale * (d_L - d_m)
+        state.L += self.twist_scale * (d_H - d_L)
+        state.H += self.twist_scale * (d_R - d_H)
+        state.R += self.twist_scale * (d_C - d_R)
+        state.C += self.twist_scale * (d_m - d_C)
+
+        state.compute_delta()
+        state.validate()
+
+    def apply(self, state: ExampleState5D, t: int) -> ExampleState5D:
+        # 1) На КАЖДОМ шаге — плавный дрейф reference-домена
+        self._update_references(state, t)
+
+        # 2) В отдельные моменты — небольшой структурный twist
+        if t in self.twist_times:
+            self._apply_twist(state)
+
+        return state
+
 # ---------------------------------------------------------
 # Run example simulation
 # ---------------------------------------------------------
@@ -1405,6 +1499,89 @@ def main() -> None:
     if result_8.breach_occurred:
         print(f"  Step : {result_8.breach_step}")
         print(f"  Type : {result_8.breach_type}")
+
+    # -----------------------------------------------------
+    # Level 9 — Slow Domain Drift + Moving Reference (5D)
+    # -----------------------------------------------------
+    print("\n\nLevel 9 — Slow Domain Drift (5D)")
+    print("===================================")
+    horizon_9 = 120
+
+    # Initial state for Level 9:
+    #   лёгкая асимметрия, всё в допустимой зоне
+    initial_state_9 = ExampleState5D(
+        m=1.0 + 0.05,
+        L=1.0 - 0.03,
+        H=1.0 + 0.04,
+        R=1.0 - 0.02,
+        C=1.0 + 0.03,
+        m_ref=1.0,
+        L_ref=1.0,
+        H_ref=1.0,
+        R_ref=1.0,
+        C_ref=1.0,
+        delta=0.0,
+        fxi=1.0,
+    )
+
+    initial_state_9.compute_delta()
+    initial_state_9.validate()
+
+    scenario_9 = DomainDriftScenario()
+
+    result_9: SimulationResult = run_simulation(
+        initial_state=initial_state_9,
+        operator=operator,     # SimpleContractiveOperator(k=0.4)
+        scenario=scenario_9,
+        horizon=horizon_9,
+        config=None,
+    )
+
+    # ---- Scalar FXI/Delta summary for Level 9 ----
+    print(f"Horizon: {horizon_9} steps")
+    print(
+        f"Initial FXI: {result_9.fxi_series[0]:.4f}, "
+        f"Initial Delta: {result_9.delta_series[0]:.4f}"
+    )
+    print()
+
+    header_9 = f"{'t':>3} | {'FXI':>8} | {'Delta':>8} | {'kappa':>8} | Zone"
+    print(header_9)
+    print("-" * len(header_9))
+
+    for t, (fxi, delta, kappa, zone) in enumerate(
+        zip(
+            result_9.fxi_series,
+            result_9.delta_series,
+            result_9.kappa_series,
+            result_9.stability_zones,
+        )
+    ):
+        kappa_str = f"{kappa:.4f}" if kappa is not None else "   n/a   "
+        print(f"{t:3d} | {fxi:8.4f} | {delta:8.4f} | {kappa_str:>8} | {zone}")
+
+    # ---- Detailed 5D deviation vector for Level 9 ----
+    print("\nDetailed 5D deviation components (Delta vector) — Level 9:")
+    header_vec_9 = (
+        f"{'t':>3} | {'d_m':>8} | {'d_L':>8} | "
+        f"{'d_H':>8} | {'d_R':>8} | {'d_C':>8} | {'norm':>8}"
+    )
+    print(header_vec_9)
+    print("-" * len(header_vec_9))
+
+    for t, state in enumerate(result_9.state_series):
+        d_m, d_L, d_H, d_R, d_C = state.delta_vec
+        norm_val = (d_m**2 + d_L**2 + d_H**2 + d_R**2 + d_C**2) ** 0.5
+        print(
+            f"{t:3d} | {d_m:8.4f} | {d_L:8.4f} | "
+            f"{d_H:8.4f} | {d_R:8.4f} | {d_C:8.4f} | {norm_val:8.4f}"
+        )
+
+    print()
+    print(f"Breach occurred (Level 9): {result_9.breach_occurred}")
+    if result_9.breach_occurred:
+        print(f"  Step : {result_9.breach_step}")
+        print(f"  Type : {result_9.breach_type}")
 
 if __name__ == "__main__":
     main()

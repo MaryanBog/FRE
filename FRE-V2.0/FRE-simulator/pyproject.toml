@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fre-simulator"
+version = "2.0.0"
+description = "Flexionization Risk Engine (FRE) Simulator V2.0"
+authors = [
+    { name = "Maryan Bogdanov", email = "m7823445@gmail.com" }
+]
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+dependencies = [
+    "numpy>=1.24",
+    "matplotlib>=3.8"
+]
+
+[project.urls]
+Homepage = "https://github.com/MaryanBog"
+Documentation = "docs/FRE-V2.0-Simulator-Documentation.md"

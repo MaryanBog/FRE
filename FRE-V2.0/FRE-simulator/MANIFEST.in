@@ -1,0 +1,16 @@
+# Include documentation
+include docs/*.md
+
+# Include example scripts
+include example_simulation.py
+
+# Include test suite
+recursive-include tests *.py
+
+# Include requirements
+include requirements.txt
+
+# Do NOT include caches or temporary files
+exclude .pytest_cache/*
+exclude *.pyc
+exclude __pycache__/*

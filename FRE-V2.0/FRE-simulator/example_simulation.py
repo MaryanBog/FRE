@@ -409,6 +409,81 @@ class MultiAxisAsymmetricScenario:
 
         return state
 
+# -----------------------------------------------------
+# Level 5 - Extreme-Edge Nonlinear Stress Scenario
+# -----------------------------------------------------
+
+class ExtremeEdgeScenario:
+    """
+    Level 5: Extreme-Edge Nonlinear Stress.
+
+    The scenario applies four strong shocks near the edge of the admissible domain:
+      - t = 5  : near-critical expansion on already stressed state
+      - t = 12 : deep compression (over-conservative reaction)
+      - t = 20 : opposite edge expansion (from compressed to expanded)
+      - t = 30 : small but sensitive edge-of-domain perturbation
+    """
+
+    def __init__(self) -> None:
+        self.shock_1_applied = False
+        self.shock_2_applied = False
+        self.shock_3_applied = False
+        self.shock_4_applied = False
+
+    def apply(self, state: ExampleState5D, t: int) -> ExampleState5D:
+        # Shock 1 at t = 5: near-critical expansion
+        if t == 5 and not self.shock_1_applied:
+            # Δm += 0.15, ΔL += 0.12, ΔH += -0.05, ΔR += 0.10, ΔC += -0.10
+            state.m += 0.15
+            state.L += 0.12
+            state.H -= 0.05
+            state.R += 0.10
+            state.C -= 0.10
+
+            state.compute_delta()
+            state.validate()
+            self.shock_1_applied = True
+
+        # Shock 2 at t = 12: deep compression / over-conservative reaction
+        if t == 12 and not self.shock_2_applied:
+            # Δm += -0.40, ΔL += -0.35, ΔH += 0.20, ΔR += -0.25, ΔC += 0.30
+            state.m -= 0.40
+            state.L -= 0.35
+            state.H += 0.20
+            state.R -= 0.25
+            state.C += 0.30
+
+            state.compute_delta()
+            state.validate()
+            self.shock_2_applied = True
+
+        # Shock 3 at t = 20: opposite edge expansion from compressed state
+        if t == 20 and not self.shock_3_applied:
+            # Δm += 0.35, ΔL += 0.40, ΔH += -0.30, ΔR += 0.20, ΔC += -0.25
+            state.m += 0.35
+            state.L += 0.40
+            state.H -= 0.30
+            state.R += 0.20
+            state.C -= 0.25
+
+            state.compute_delta()
+            state.validate()
+            self.shock_3_applied = True
+
+        # Shock 4 at t = 30: small but sensitive edge-of-domain perturbation
+        if t == 30 and not self.shock_4_applied:
+            # Δm += 0.05, ΔL += -0.07, ΔH += 0.06, ΔR += -0.04, ΔC += 0.05
+            state.m += 0.05
+            state.L -= 0.07
+            state.H += 0.06
+            state.R -= 0.04
+            state.C += 0.05
+
+            state.compute_delta()
+            state.validate()
+            self.shock_4_applied = True
+
+        return state
 
 # ---------------------------------------------------------
 # Run example simulation
@@ -682,6 +757,90 @@ def main() -> None:
     if result_4.breach_occurred:
         print(f"  Step : {result_4.breach_step}")
         print(f"  Type : {result_4.breach_type}")
+
+    # -----------------------------------------------------
+    # Level 5 - Extreme-Edge Nonlinear Stress (5D)
+    # -----------------------------------------------------
+    print("\n\nLevel 5 - Extreme-Edge Nonlinear Stress (5D)")
+    print("==============================================")
+    horizon_5 = 50
+
+    # Initial state for Level 5:
+    #   Δm = +0.20, ΔL = +0.18, ΔH = -0.15, ΔR = +0.10, ΔC = -0.18
+    initial_state_5 = ExampleState5D(
+        m=1.0 + 0.20,   # m_ref + Δm
+        L=1.0 + 0.18,   # L_ref + ΔL
+        H=1.0 - 0.15,   # H_ref + ΔH
+        R=1.0 + 0.10,   # R_ref + ΔR
+        C=1.0 - 0.18,   # C_ref + ΔC
+        m_ref=1.0,
+        L_ref=1.0,
+        H_ref=1.0,
+        R_ref=1.0,
+        C_ref=1.0,
+        delta=0.0,
+        fxi=1.0,
+    )
+
+    initial_state_5.compute_delta()
+    initial_state_5.validate()
+
+    scenario_5 = ExtremeEdgeScenario()
+
+    result_5: SimulationResult = run_simulation(
+        initial_state=initial_state_5,
+        operator=operator,      # same SimpleContractiveOperator(k=0.4)
+        scenario=scenario_5,
+        horizon=horizon_5,
+        config=None,
+    )
+
+    # ---- Scalar FXI/Delta summary for Level 5 ----
+    print(f"Horizon: {horizon_5} steps")
+    print(
+        f"Initial FXI: {result_5.fxi_series[0]:.4f}, "
+        f"Initial Delta: {result_5.delta_series[0]:.4f}"
+    )
+    print()
+
+    header_5 = f"{'t':>3} | {'FXI':>8} | {'Delta':>8} | {'kappa':>8} | Zone"
+    print(header_5)
+    print("-" * len(header_5))
+
+    for t, (fxi, delta, kappa, zone) in enumerate(
+        zip(
+            result_5.fxi_series,
+            result_5.delta_series,
+            result_5.kappa_series,
+            result_5.stability_zones,
+        )
+    ):
+        kappa_str = f"{kappa:.4f}" if kappa is not None else "   n/a  "
+        print(f"{t:3d} | {fxi:8.4f} | {delta:8.4f} | {kappa_str:>8} | {zone}")
+
+    # ---- 5D deviation vector for Level 5 ----
+    print("\nDetailed 5D deviation components (Delta vector) Level 5:")
+    header_vec_5 = (
+        f"{'t':>3} | {'d_m':>8} | {'d_L':>8} | "
+        f"{'d_H':>8} | {'d_R':>8} | {'d_C':>8} | {'norm':>8}"
+    )
+    print(header_vec_5)
+    print("-" * len(header_vec_5))
+
+    for t, state in enumerate(result_5.state_series):
+        d_m, d_L, d_H, d_R, d_C = state.delta_vec
+        norm_val = (d_m**2 + d_L**2 + d_H**2 + d_R**2 + d_C**2) ** 0.5
+        print(
+            f"{t:3d} | {d_m:8.4f} | {d_L:8.4f} | "
+            f"{d_H:8.4f} | {d_R:8.4f} | {d_C:8.4f} | {norm_val:8.4f}"
+        )
+
+    print()
+    print(f"Breach occurred (Level 5): {result_5.breach_occurred}")
+    if result_5.breach_occurred:
+        print(f"  Step : {result_5.breach_step}")
+        print(f"  Type : {result_5.breach_type}")
+
 
 if __name__ == "__main__":
     main()

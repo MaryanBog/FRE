@@ -1,136 +1,164 @@
-# Flexionization Risk Engine (FRE)
-### Version 1.1 — Structural Risk Dynamics for Financial Systems  
+# Flexion Risk Engine (FRE) — Version 2.0
+### Structural Risk Engine Based on Flexion Dynamics V2.0  
 **Author:** Maryan Bogdanov  
-**Project:** Flexionization Framework
+**Project:** Flexion Framework (Structural Dynamics)
 
-Flexionization Risk Engine (FRE) is a structural, mathematically rigorous risk-control
-model based on the Flexionization theory.  
-Unlike traditional risk engines that rely on thresholds, volatility spikes, and reactive
-heuristics, FRE defines risk evolution entirely through internal structural dynamics:
+FRE V2.0 is the first industrial-grade risk engine built on **Structural Dynamics** — the fundamental theory of Flexion Dynamics V2.0.
 
-**Δ → FXI → E → Δₜ₊₁**
+Unlike conventional risk systems (VaR, liquidation thresholds, volatility triggers, reactive hedging), FRE models risk as an **internal structural state** described by four core variables:
 
-This produces a continuous, bounded, and predictable correction mechanism that
-eliminates jump-shock behavior — the root cause of liquidation cascades, systemic stress,
-and destabilizing feedback loops in both CeFi and DeFi platforms.
+**Δ — structural deviation**  
+**Φ — structural energy**  
+**M — memory (irreversibility)**  
+**κ — contractivity (recoverability)**
 
----
-
-## 📘 What Is FRE?
-
-FRE is the first unified mathematical engine designed to stabilize:
-
-- margin systems (CEX),
-- collateral and liquidation mechanisms (DeFi),
-- VaR/ES models (banks and funds),
-- automated hedging systems,
-- clearing and settlement infrastructures,
-- HFT/prop risk engines.
-
-It replaces threshold-based logic with a smooth structural flow derived from the
-Flexionization theory.
-
-FRE is:
-
-- **continuous** — no abrupt updates,  
-- **bounded** — no explosive corrections,  
-- **monotonic** — always moves toward stability,  
-- **verifiable** — every step is mathematically checkable,  
-- **universal** — independent of market prices, assets, or architecture.
+FRE V2.0 ensures continuous, predictable, and strictly bounded risk evolution — eliminating jump shocks, liquidation cascades, and explosive margin dynamics.
 
 ---
 
-## 🔧 Core Concepts
+# 🧩 What Is FRE V2.0?
 
-The engine operates on three fundamental quantities:
+**FRE is a next-generation structural risk engine** designed to stabilize any financial system:
 
-- **Δ** — structural deviation (risk imbalance)  
-- **FXI** — structural stability indicator  
-- **E** — corrective operator ensuring smooth bounded transitions
+- smooth and continuous risk updates (no jumps),
+- globally bounded corrective flow,
+- mathematically predictable dynamics,
+- full auditability of every step,
+- independence from price, volatility, and market regime,
+- built-in collapse prevention via structural geometry.
 
-The central update rule:
-
-**Δₜ₊₁ = F⁻¹(E(F(Δₜ)))**  
-and equivalently:  
-**FXIₜ₊₁ = E(FXIₜ)**
-
-This ensures full structural consistency and eliminates jump shocks.
+FRE is not a price-reactive model.  
+It is **structural navigation inside the Viability Domain D**, governed by Flexion Dynamics V2.0.
 
 ---
 
-## 📄 Documentation
+# 🧠 Core Structural Model
 
-Full scientific documentation:
+The structural state is:
 
-- **Flexionization Risk Engine — Version 1.1 (EN)**  
-  Provides the complete theoretical foundation, axioms, stability theorems, and applied use cases.
+**X = (Δ, Φ, M, κ)**
 
-- **Flexionization Theory (Core)**  
-  DOI: https://doi.org/10.5281/zenodo.17618948
+### Δ — Structural Deviation  
+Imbalance of the margin, collateral, or liquidation structure.
 
-Related works:
+### Φ — Structural Energy  
+The tension required to maintain the current system configuration.
 
-- **Flexionization Immune Model — V1.1**  
-- **Flexionization Theory — V1.5 (PDF)**  
+### M — Memory  
+Accumulated irreversible damage from stress, shocks, or failed corrections.
 
-All documents are included in this repository.
+### κ — Contractivity  
+The ability of the system to move back toward stability rather than outward toward collapse.
 
 ---
 
-## 🚀 Why FRE?
+# 📐 Structural Dynamics Update Rule
+
+Risk evolves through the structural flow:
+
+**dX/dt = F_flow(X)**
+
+where the flow components enforce:
+
+- movement toward lower energy (−∇Φ),  
+- reduction of deviation (R(Δ)),  
+- memory-regulated correction speed (G_M),  
+- strict guarantee that κ never turns negative (Cκ).
+
+A system must **never enter κ < 0** — FRE forbids collapse-inducing operations.
+
+---
+
+# 🔥 Why FRE Is Unique
 
 ### FRE eliminates:
-- jump shocks,  
-- discontinuous margin updates,  
-- VaR cliffs,  
-- liquidation cascades,  
-- self-reinforcing volatility feedback loops.
+- jump-shocks,  
+- liquidation clusters,  
+- margin cliffs,  
+- VaR blowups under volatility,  
+- irreversible structural damage accumulation,  
+- self-reinforcing risk feedback loops.
 
-### FRE provides:
-- predictable structural convergence (**FXI → 1**, **Δ → 0**),  
-- globally stable risk dynamics,  
-- bounded corrective steps,  
-- auditability and mathematical verification.
-
-This makes FRE a next-generation engine for financial infrastructure.
-
----
-
-## 🛠 Future Directions
-
-Upcoming repository additions:
-
-- FRE Python SDK  
-- FRE TypeScript SDK  
-- simulation engine for testing Δ and FXI flows  
-- integration examples for CeFi, DeFi, and banks  
-- LaTeX and PDF releases  
-- technical implementation notes
+### FRE ensures:
+- **κ ≥ 0** — structural viability,  
+- **Φ ≤ Φ_max** — bounded tension,  
+- **M stays controlled** — memory does not erode reversibility,  
+- **Δ gradually decreases** — the structure normalizes over time.
 
 ---
 
-## 📬 Contact
+# 🏦 Use Cases
+
+FRE V2.0 can be embedded into any financial environment:
+
+### **CeFi**
+- continuous margin adjustments,  
+- smooth liquidation logic,  
+- suppression of cascade events.
+
+### **DeFi**
+- robust CDP systems,  
+- structurally stable stablecoins,  
+- liquidation logic without shocks.
+
+### **Banks & Funds**
+- structural-risk layer on top of VaR/ES,  
+- controlled stress transitions,  
+- predictable behavior under pressure.
+
+### **HFT / Prop Trading**
+- suppression of positive-feedback collapses,  
+- continuous normalization of risk exposure.
+
+---
+
+# 📄 Documentation
+
+- **FRE Risk Engine V2.0 — Specification (LaTeX + code)**  
+- **Flexion Dynamics V2.0 — Core Theory (Structural Dynamics)**  
+- **Flexion Time Theory 1.1**  
+- **Deflexionization V1.0**  
+- **Flexion Field Theory V1.0**
+
+All documents are included in this repository and on Zenodo.
+
+---
+
+# 🚀 Roadmap
+
+### ✔ V2.0  
+Technical release (Δ–Φ–M–κ architecture, structural operators, F_flow).
+
+### 🔜 V2.1  
+Python SDK
+
+### 🔜 V2.2  
+TypeScript SDK
+
+### 🔜 V3.0 (after funding)  
+Full integration of Flexion Dynamics V2.0, SRI, Collapse Geometry, structural simulators.
+
+---
+
+# 📬 Contact & Collaboration
 
 **Maryan Bogdanov**  
-Creator of Flexionization  
-Email: m7823445@gmail.com
+Email: m7823445@gmail.com  
+GitHub: https://github.com/MaryanBog  
+X (Twitter): https://x.com/FlexionDynamics
 
-For academic, research, or integration inquiries — feel free to reach out.
-
----
-
-## ⭐ Citation
-
-If you use FRE in your research or implementation, please cite:
-
-**Bogdanov, M. (2025). Flexionization: Formal Theory of Dynamic Quantitative Equilibrium.  
-Zenodo. https://doi.org/10.5281/zenodo.17618948**
+For integration, industry pilots, or research collaboration — feel free to reach out.
 
 ---
 
-## 🌐 License
+# ⭐ Citation
 
-To be defined (e.g., MIT / Apache 2.0 / custom commercial license).
+If you use FRE in your research or product, please cite:
+
+**Bogdanov, M. (2025). Flexion Dynamics V2.0: Formal Theory of Structural Motion and Collapse. Zenodo.**
 
 ---
 
+# 🌐 License
+
+To be defined (MIT / Apache 2.0 / custom enterprise license).
